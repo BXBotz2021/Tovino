@@ -60,8 +60,6 @@ async def next_page(bot, query):
     if not files:
         return
     settings = await get_settings(query.message.chat.id)
-    pre = 'Chat' if settings['redirect_to'] == 'Chat' else 'files'
-
     if settings['button']:
         btn = [
             [
@@ -424,37 +422,11 @@ async def cb_handler(client: Client, query: CallbackQuery):
   
         try:
             msg = await client.send_cached_media(
-                chat_id=AUTH_CHANNEL,
+                chat_id=query.from_user.id,
                 file_id=file_id,
-                caption=f'<b>Hai 👋 {query.from_user.mention}</b> 😍\n\n<code>[DK_BOTx] {title}</code>\n\n⚠️ <i>This file will be deleted from here within 5 minute as it has copyright ... !!!</i>\n\n<i>കോപ്പിറൈറ്റ് ഉള്ളതുകൊണ്ട് ഫയൽ 5 മിനിറ്റിനുള്ളിൽ ഇവിടെനിന്നും ഡിലീറ്റ് ആകുന്നതാണ് അതുകൊണ്ട് ഇവിടെ നിന്നും മറ്റെവിടെക്കെങ്കിലും മാറ്റിയതിന് ശേഷം ഡൗൺലോഡ് ചെയ്യുക!</i>\n\n<i><b>⚡ Powered by {query.message.chat.title}</b></i>',
-                protect_content=True if ident == "filep" else False 
-            )
-            msg1 = await query.message.reply(
-                f'<b> Hai 👋 {query.from_user.mention} </b>😍\n\n<b>📫 Your File is Ready</b>\n\n'           
-                f'<b>📂 Fɪʟᴇ Nᴀᴍᴇ</b> : <code>[DK_BOTx] {title}</code>\n\n'              
-                f'<b>⚙️ Fɪʟᴇ Sɪᴢᴇ</b> : <b>{size}</b>',
-                True,
-                'html',
-                reply_markup=InlineKeyboardMarkup(
-                    [
-                        [
-                            InlineKeyboardButton('📥 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖫𝗂𝗇𝗄 📥 ', url = msg.link)
-                        ],                       
-                        [
-                            InlineKeyboardButton("⚠️ 𝖢𝖺𝗇'𝗍 𝖠𝖼𝖼𝖾𝗌𝗌 ❓ 𝖢𝗅𝗂𝖼𝗄 𝖧𝖾𝗋𝖾 ⚠️", url=f'https://t.me/+tu5TMHWzu9JiZWE1')
-                        ]
-                    ]
-                )
-            )
-            await query.answer('Check Out The Chat',)
-            await asyncio.sleep(300)
-            await msg1.delete()
-            await msg.delete()
-            del msg1, msg
-        except Exception as e:
-            logger.exception(e, exc_info=True)
-            await query.answer(f"Encountering Issues", True)
-
+                caption=f_caption,
+                protect_content=True if ident == 'checksubp' else False
+        
     elif query.data.startswith("checksub"):
         if AUTH_CHANNEL and not await is_subscribed(client, query):
             await query.answer("I Like Your Smartness, But Don't Be Oversmart 😒", show_alert=True)
@@ -926,12 +898,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton( 'Redirect To',
-                                         callback_data=f'setgs#redirect_to#{settings["redirect_to"]}#{grp_id}',),
-                    InlineKeyboardButton('👤 PM' if settings["redirect_to"] == "PM" else '📄 Chat',
-                                         callback_data=f'setgs#redirect_to#{settings["redirect_to"]}#{grp_id}',),
-                ],
-                [
                     InlineKeyboardButton('Bot PM', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
                     InlineKeyboardButton('✅ Yes' if settings["botpm"] else '❌ No',
                                          callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
@@ -992,8 +958,6 @@ async def auto_filter(client, msg: pyrogram.types.Message, spoll=False):
         search, files, offset, total_results = spoll
     
     pre = 'filep' if settings['file_secure'] else 'file'
-    pre = 'Chat' if settings['redirect_to'] == 'Chat' else pre
-
     if settings["button"]:
         btn = [
             [
